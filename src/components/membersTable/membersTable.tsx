@@ -15,6 +15,7 @@ interface Props {
 // We define members as a state (the compoment holding this will be a container
 // component)
 interface State {
+  isLoading: boolean;
   members: Array<MemberEntity>;
   organization: string;
   showLoginFailedMsg: boolean;
@@ -28,6 +29,7 @@ export class MembersTableComponent extends React.Component<Props, State> {
     super(props);
     // set initial state
     this.state = { 
+      isLoading: false,
       members: [], 
       organization: 'lemoncode',
       showLoginFailedMsg: false,
@@ -37,7 +39,6 @@ export class MembersTableComponent extends React.Component<Props, State> {
 
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
-    console.log(this.state);
   }
 
   loadMembers = () => {
@@ -46,6 +47,7 @@ export class MembersTableComponent extends React.Component<Props, State> {
     memberAPI.getAllMembers(organization)
     .then((members) =>
       this.setState({ 
+        isLoading: false,
         members,
         showLoginFailedMsg: false, 
         errorMessage: '', 
@@ -54,32 +56,25 @@ export class MembersTableComponent extends React.Component<Props, State> {
     )
     .catch((error) => {
       this.setState({
+        isLoading: false,
         members: [],
         hasError: true, 
         showLoginFailedMsg: true, 
         errorMessage: `Error: ${error.message}: organización no existente` });
-    })
-    ;
+    });
   }
-
   onSearchChange(event) {
     this.setState({ organization: event.target.value });
   }
-
   onSearchSubmit(event) {
-    const { organization } = this.state;
-    this.setState({ organization });
+    // const { organization } = this.state;
+    this.setState({ isLoading: true });
     this.loadMembers();
     event.preventDefault();
   }
 
-  hayMiembros(): boolean {
-    const { members } = this.state;
-    return members && members.length > 0;
-  }
-
   public render() {
-    const {organization, members, showLoginFailedMsg, errorMessage, hasError} = this.state;
+    const {isLoading, organization, members, showLoginFailedMsg, errorMessage, hasError} = this.state;
 
     return (
       <div className="row">
@@ -91,27 +86,17 @@ export class MembersTableComponent extends React.Component<Props, State> {
           >
             Buscar
           </Search>
-        {this.hayMiembros && <table className="table">
-          <thead>
-            <MemberHead />
-          </thead>
-          <tbody>
-            {
-              members.map((member: MemberEntity) =>
-                <MemberRow key={member.id} member={member} />
-              )
-            }
-          </tbody>
-        </table>
-        }
 
-        {this.hayMiembros && <div className="table">
+        {!isLoading ? (<div className="table">
           {
             members.map((member: MemberEntity) =>
               <MemberDiv key={member.id} member={member} />
             )
           }
-        </div>}
+        </div>
+        ) : (
+          <h3>Obteniendo datos de la organización "{organization}"...</h3>
+        )}
 
         {hasError && <NotificationComponent
             message={errorMessage}

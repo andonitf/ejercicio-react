@@ -19,16 +19,3 @@ export const MemberDiv = (props: {member : MemberEntity}) =>
       <span style={midColumn}>{props.member.id}</span>
       <span style={midColumn}>{props.member.login}</span>
     </div>
-
-
-      //  <tr>
-      //    <td>
-      //      <img src={props.member.avatar_url} className="avatar" />
-      //    </td>
-      //    <td>
-      //      <span>{props.member.id}</span>
-      //    </td>
-      //    <td>
-      //      <span>{props.member.login}</span>
-      //    </td>
-      //  </tr>
